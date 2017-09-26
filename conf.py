@@ -113,7 +113,7 @@ html_sidebars = {
 }
 html_theme_options = {
     'font_family': 'serif',
-    'code_font_family': 'monospace',
+    'code_font_family': '"Fira Mono", monospace',
     'head_font_family': 'sans-serif',
     'body_text_align': 'justify',
 }
