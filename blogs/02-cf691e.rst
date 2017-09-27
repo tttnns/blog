@@ -1,0 +1,170 @@
+cf691e_: 矩阵快速幂优化dp
+=========================
+
+.. _cf691e: http://codeforces.com/problemset/problem/691/E
+
+
+题意
+----
+
+给你一个大小为 n 的集合 a ，我们要造一个长度为 k 的序列 x ，满足：
+
+* :math:`\mathrel{for} v \in x \rightarrow v \in a`
+* :math:`\mathrel{for} i \in range(len(x) - 1) \rightarrow sum(bits(x_i \mathbin{\hat{}} x_{i + 1})) \mod 3 = 0`
+
+:math:`1 \le n \le 100, 1 \le k \le 10^{18}, 0 \le v \in a \le 10^{18}`
+
+题解
+----
+
+首先我们要糊一个爆炸的 dp ，但我没有糊出来，于是 gg 。
+
+下面开始糊 dp 。我们发现位置 :math:`i` 的决策只与位置 :math:`i - 1` 有关而与更前面无关，确切地说，是 :math:`x_{i - 1}` 约束了 :math:`x_i` 的取值，因为要满足条件。方程：
+
+.. math::
+    dp[i][j] = &sum(dp[i - 1][k] \mathrel{for} k \in a \mathrel{if} sum(bits(k \hat{} j)) \mod 3 = 0) \\
+    &\mathrel{for} i \in k \mathrel{for} j \in a
+
+如果 k 的范围小一点就能直接跑 dp 了。但这个 k 大得可以，所以我们要糊一个矩阵快速幂优化。
+
+最简单的矩阵快速幂优化应该是优化 fib 数列那个了。fib 数列的方程：
+
+.. math::
+    fib_{i + 2} = fib_i + fib_{i + 1}
+
+优化的做法是，建一个这样的矩阵：
+
+.. math::
+   :label: fib转移矩阵
+
+    \left[\begin{array}{cc}
+        0 & 1 \\
+        1 & 1
+    \end{array}\right]
+
+我们的 fib 矩阵是这样的：
+
+.. math::
+    \left[\begin{array}{cc}
+        fib_i & fib_{i + 1}
+    \end{array}\right]
+
+相乘：
+
+.. math::
+    \left[\begin{array}{cc}
+        fib_i & fib_{i + 1}
+    \end{array}\right]
+    \times
+    \left[\begin{array}{cc}
+        0 & 1 \\
+        1 & 1
+    \end{array}\right]
+    &=
+    \left[\begin{array}{cc}
+        fib_i \times 0 + fib_{i + 1} \times 1 & fib_i \times 1 + fib_{i + 1} \times 1
+    \end{array}\right] \\
+    &=
+    \left[\begin{array}{cc}
+        fib_{i + 1} & fib_{i} + fib_{i + 1}
+    \end{array}\right] \\
+    &=
+    \left[\begin{array}{cc}
+        fib_{i + 1} & fib_{i + 2}
+    \end{array}\right]
+
+于是乎我们通过乘上 :eq:`fib转移矩阵` ，成功地将 :math:`\left[\begin{array}{cc} fib_i & fib_{i + 1}\end{array}\right]` 转移到了 :math:`\left[\begin{array}{cc} fib_{i + 1} & fib_{i + 2}\end{array}\right]` 。这样的转移可以一直进行下去，直到得到要求的值。
+由于矩阵乘法符合交换率，我们可以使用快速幂求出 :eq:`fib转移矩阵` 的 n 次幂，再乘初始矩阵，就求出了 fib 数列的第 n 项。复杂度 :math:`O(\lg n)` 。（据 intel 爸爸说小于等于 :math:`4 \times 4` 的矩阵相乘是 :math:`O(1)` 的）
+
+我们需要对此进行拓展，以解决此题。我们对本题简化发现，其实就是给你一些边（可相邻的数对，这是可以预处理得到的），走 k 步（填 k 个数），有几种走法。我们把这些边填到邻接矩阵中试一试，然后来分析一下 2 次幂时的情况：（以 :math:`3 \times 3` 为例）
+
+.. math::
+    M &= 
+    \left[\begin{array}{ccc}
+        u_0 v_0 & u_0 v_1 & u_0 v_2 \\
+        u_1 v_0 & u_1 v_1 & u_1 v_2 \\
+        u_2 v_0 & u_2 v_1 & u_2 v_2
+    \end{array}\right] \\
+    N &= M^2
+
+我们以 :math:`(0, 2)` 这个位置为例。 :math:`M_{(0, 2)}` 表示 :math:`u_0 \rightarrow v_2` 有无连边（可以推广为有几条连边），相当于走 1 步有几种走法。再看看 :math:`N_{(0, 2)}` ：
+
+.. math::
+    N_{(0, 2)}
+    &= M_{(0, 0)} \times M_{(0, 2)} + M_{(0, 1)} \times M_{(1, 2)} + M_{(0, 2)} \times M_{(2, 2)} \\
+    &= u_0 v_0 \times u_0 v_2 + u_0 v_1 \times u_1 v_2 + u_0 v_2 \times u_2 v_2
+
+根据组合数学“阶段相乘，选择相加”，我们可以知道 :math:`N_{(0, 2)}` 就等于 :math:`u_0 \rightarrow v_2` 走 2 步有几种走法，问题完美解决。自此我们得到了一个通用的 :math:`O(n^3 \lg k)` 的求走 k 步达到一个状态的方案数的算法，可以用来优化一些 dp 。以后我们看到 n 比较小， k 比较大时可以考虑这个优化。
+
+代码
+----
+
+有人喜欢用 ``class`` 来存矩阵，用重载运算符实现矩阵乘法，并认为这是 OOP 的优美之处。
+我对此并不感冒，因为 OOP 并不只有这个实现方式 -- 没错我指的是 ``PyObject*`` 。
+
+.. code-block:: C++
+
+    #include <cstdio>
+    #include <cstring>
+    using namespace std;
+    const int maxn = 100;
+    const int mod = 1000000007;
+    typedef long long ll;
+    int n; ll k;
+    ll a[maxn];
+    int mat[maxn][maxn];
+    int tmp[maxn][maxn];
+    int ans[maxn][maxn];
+    static inline bool check(ll x){
+        int ones = 0;
+        while(x){
+            ones += ((x & 1) == 1);
+            x >>= 1;
+        }
+        return ones % 3 == 0;
+    }
+    static void imulmat(int a[maxn][maxn], int b[maxn][maxn]){
+        static int c[maxn][maxn];
+        for(int i = 0; i < n; ++i)
+            for(int j = 0; j < n; ++j){
+                c[i][j] = 0;
+                for(int k = 0; k < n; ++k)
+                    c[i][j] = (c[i][j] + 1ll * a[i][k] * b[k][j]) % mod;
+            }
+        memcpy(a, c, sizeof(c));
+    }
+    static void makebase(int a[maxn][maxn]){
+        for(int i = 0; i < n; ++i)
+            a[i][i] = 1;
+    }
+    static void printmat(int a[maxn][maxn]){
+        for(int i = 0; i < n; ++i){
+            for(int j = 0; j < n; ++j)
+                printf("%d ", a[i][j]);
+            putchar('\n');
+        }
+        putchar('\n');
+        fflush(stdout);
+    }
+    int main(void){
+        scanf("%d%I64d", &n, &k);
+        for(int i = 0; i < n; ++i)
+            scanf("%I64d", a + i);
+        for(int i = 0; i < n; ++i)
+            for(int j = 0; j < n; ++j)
+                mat[i][j] = check(a[i] ^ a[j]);
+        makebase(ans);
+        ll b = k - 1;
+        while(b){
+            if(b & 1)
+                imulmat(ans, mat);
+            imulmat(mat, mat);
+            b >>= 1;
+        }
+        int ians = 0;
+        for(int i = 0; i < n; ++i)
+            for(int j = 0; j < n; ++j)
+                ians = (ians + ans[i][j]) % mod;
+        printf("%d\n", ians);
+        return 0;
+    }
