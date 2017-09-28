@@ -1,5 +1,5 @@
-cf691e_: 矩阵快速幂优化dp
-=========================
+cf691e_: 矩阵快速幂优化 dp
+==========================
 
 .. _cf691e: http://codeforces.com/problemset/problem/691/E
 
@@ -22,7 +22,7 @@ cf691e_: 矩阵快速幂优化dp
 下面开始糊 dp 。我们发现位置 :math:`i` 的决策只与位置 :math:`i - 1` 有关而与更前面无关，确切地说，是 :math:`x_{i - 1}` 约束了 :math:`x_i` 的取值，因为要满足条件。方程：
 
 .. math::
-    dp[i][j] = &sum(dp[i - 1][k] \mathrel{for} k \in a \mathrel{if} sum(bits(k \hat{} j)) \mod 3 = 0) \\
+    dp[i][j] = &sum(dp[i - 1][k] \mathrel{for} k \in a \mathrel{if} sum(bits(k \mathbin{\hat{}} j)) \mod 3 = 0) \\
     &\mathrel{for} i \in k \mathrel{for} j \in a
 
 如果 k 的范围小一点就能直接跑 dp 了。但这个 k 大得可以，所以我们要糊一个矩阵快速幂优化。
@@ -166,5 +166,170 @@ cf691e_: 矩阵快速幂优化dp
             for(int j = 0; j < n; ++j)
                 ians = (ians + ans[i][j]) % mod;
         printf("%d\n", ians);
+        return 0;
+    }
+
+EXTRA: ttt学字符串（8012）
+--------------------------
+
+世界终将感受到被 517 题统治的恐惧。。。
+
+题目大意
+^^^^^^^^
+
+大法师ttt 最近在学习字符串，有一天他看到魔力xtx左手拿着A字符串，右手拿着B字符串，两个字符串的长度都是一样的,而且都由abc三种字符构成，大法师ttt的灵力值为C，现在告诉你 a变b b变c以及c变a分别需要消耗的灵力值（其他变换是不存在的），问你在ttt的灵力值范围内最多能有多少种不同的方案可以从xtx的左手串变换到xtx的右手串
+
+输入格式
+^^^^^^^^
+
+前两行输入两个长度相同的字符串 ，第一个串表示左手串，第二个串表示右手串，右手串不能变
+
+第三行输入三个整数分别代表转换的代价cost_ab cost_bc cost_ca 
+
+第四行输入一个整数表示ttt的灵力值
+
+输出格式
+^^^^^^^^
+
+对于每组数据输出一个数，对1e9+7取模，表示答案
+
+数据范围
+^^^^^^^^
+
+n 为字符串长度
+
+* 30%, n <= 5, max(cost_ab, cost_bc, cost_ca) <= 5, C <= 20
+* 60%, n <= 5, max(cost_ab, cost_bc, cost_ca) <= 100, C <= 1000
+* 100%, n <= 11, max(cost_ab, cost_bc, cost_ca) <= 100, C <= 1000000000
+
+PS
+^^
+
+反正据 517 说是搬原题的，我再搬一遍应该不会被表。
+
+题解
+^^^^
+
+我比赛时看了一眼这题，觉得不可做（果然，场上无人 AC ），就弃疗写了这篇博客的前半部分。赛后 517 讲这是矩阵快速幂优化 dp 裸题，233。
+
+注意数据范围，有矩阵快速幂优化 dp 的特色。
+
+我们非常容易就可以贪心算出最少需要几步以及多少花费才能把 a 串变为 b 串。那么剩余的法力就可以拿来浪了。
+
+.. note::
+    为表述简单起见，
+
+    .. math::
+        c_a &= cost_{ab} \\
+        c_b &= cost_{bc} \\
+        c_c &= cost_{ca}
+
+怎么浪？当然是兜圈子喽。至少浪 3 步才能兜回来，浪一圈消耗 :math:`c_a + c_b + c_c` ，那么能浪最多 :math:`\lfloor\frac{remain}{c_a + c_b + c_c}\rfloor \times 3` 步。
+
+不怕浪的途中把法力耗完吗？不怕。假设 :math:`c_a \lt c_b \lt c_c` ，你可能会一直搞 :math:`c_c` 然后在步数限制内把法力耗光。
+耗光当然是可能的，但你再也走不回来了：你走一次 :math:`c_c` 后，必须再走 :math:`c_a` 和 :math:`c_b` 后才能兜回来，
+因此你消耗 :math:`c_c` 后， 必须再走 :math:`c_a + c_b` 才能对答案产生贡献；因此受步数上限的限制，不会在途中就把法力耗光。
+
+对于转移到 b 的前半部分，我们是用贪心求出最少需要几步以及多少花费，我们稍微想想，如果不兜圈子，不论怎么走，步数和花费总是最少步数和花费。
+这个干活的部分，既可以在浪之前，也可以在浪之后，或者穿插在浪途中，但消耗和步数总是一样的，因此两部分可以一起算，不会因为干多了活使得浪的时候没有法力了。
+于是乎问题转化为了：给你一个初始状态，求在 :math:`transform\_steps + \lfloor\frac{remain}{c_a + c_b + c_c}\rfloor \times 3` 步 **以内** 达到目标状态有几种方案。
+
+注意，原来是走几步达到目标状态有几种方案，这题是走几步 **以内** 达到目标状态有几种方案，相当于前缀和。难道要走一步统计一下方案？那不是不能用快速幂了？
+
+金牌教练 517 的神奇算法：让矩阵自己维护前缀和。怎么做呢？我只会抽象的理解。
+我们建一个超级点 :math:`super` ，这样做：
+
+.. math::
+   :label: super点
+
+    super &\rightarrow init\_state \\
+    super &\rightarrow super \\
+    ans = super &\Rightarrow final\_state
+
+.. note::
+    由于我不会数学，所以符号都是乱用的。
+
+    * :math:`\rightarrow` : 一般表示“连边”或“连边的属性”，比如边权或边的有无，可为动词也可为名词。也常常表示“走一步走到”。
+      有时用在 :math:`\mathrel{for}` 循环里表示“满足条件”（例如本文开头）。
+    * :math:`\Rightarrow` : 一般表示“路径”或“路径的属性”，比如某点到某点的方案数或路径长度。也常常表示“走到”。
+
+    在 :eq:`super点` 中， :math:`\rightarrow` 表示连一条边， :math:`\Rightarrow` 表示某点到某点的方案数。
+
+为什么呢？我们就把 :math:`super` 理解为飞行棋中的飞机场；在 :math:`super` 点，可以选择出发，走到 :math:`init\_state` ；或者留在飞机场，相当于 :math:`super \rightarrow super` 原地兜圈。
+这样，我们可以在原地兜任意圈再走出去，从而控制了剩下的步数，从 0 步到上限步，这样就相当于前缀和了。
+（由于走出去要一步，所以总步数要加 1 ）
+
+517 太强了， %%517 。
+
+代码
+^^^^
+
+.. code-block:: C++
+
+    #include <cstdio>
+    #include <cstring>
+    using namespace std;
+    const int maxl = 12;
+    const int maxs = 100;
+    const int mod = 1000000007;
+    char a[maxl], b[maxl];
+    int c[3], m, n, k, s;
+    int mat[maxs][maxs], ans[maxs][maxs];
+    int mp[maxl][maxl];
+    int sz = 0;
+    static void make_id(void){
+        for(int i = 0; i <= n; ++i)
+            for(int j = 0; j + i <= n; ++j)
+                mp[i][j] = sz++;
+    }
+    static inline int id(const int i, const int j){
+        return mp[i][j];
+    }
+    static void imulmat(int a[maxs][maxs], const int b[maxs][maxs]){
+        static int c[maxs][maxs];
+        for(int i = 0; i < s; ++i)
+            for(int j = 0; j < s; ++j){
+                c[i][j] = 0;
+                for(int k = 0; k < s; ++k)
+                    c[i][j] = (c[i][j] + 1ll * a[i][k] * b[k][j]) % mod;
+            }
+        memcpy(a, c, sizeof(c));
+    }
+    int main(void){
+        scanf("%s%s%d%d%d%d", a, b, c, c + 1, c + 2, &m);
+        n = strlen(a);
+        make_id(); s = sz + 1;
+        int md = 0, ms = 0, ii = 0, ij = 0;
+        for(int i = 0; i < n; ++i){
+            int tms = 0;
+            for(int j = a[i] - 'a'; j != b[i] - 'a'; j = (j + 1) % 3){
+                md += c[j]; ++ms; ++tms;
+            }
+            if(tms == 0)
+                ++ii;
+            else if(tms == 1)
+                ++ij;
+        }
+        k = (m - md) / (c[0] + c[1] + c[2]) * 3 + ms + 1;
+        for(int i = 0; i <= n; ++i)
+            for(int j = 0; j + i <= n; ++j){
+                const int k = n - i - j;
+                if(i > 0 and k < n)
+                    mat[id(i, j)][id(i - 1, j)] = i;
+                if(j > 0 and i < n)
+                    mat[id(i, j)][id(i + 1, j - 1)] = j;
+                if(k > 0 and j < n)
+                    mat[id(i, j)][id(i, j + 1)] = k;
+            }
+        for(int i = 0; i < s; ++i)
+            ans[i][i] = 1;
+        mat[sz][id(ii, ij)] = mat[sz][sz] = 1;
+        while(k){
+            if(k & 1)
+                imulmat(ans, mat);
+            imulmat(mat, mat);
+            k >>= 1;
+        }
+        printf("%d\n", ans[sz][id(n, 0)]);
         return 0;
     }
