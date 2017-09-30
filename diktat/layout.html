@@ -1,0 +1,261 @@
+{%- extends "basic/layout.html" %}
+
+{%- block csss %}
+    {{ super() }}
+    <link type="text/css" rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons"/>
+    <link type="text/css" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Mono:400,400i,500,700"/>
+    <link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css"  media="screen,projection"/>
+    <style>
+        body.container {
+            max-width: 800px;
+        }
+
+        #relbar1 > nav {
+            left: 0;
+            top: 0;
+        }
+        #relbar1 > nav > .nav-content {
+            padding-bottom: 10px;
+        }
+        #relbar1 > nav > .nav-content > .breadcrumb {
+            display: inline-block;
+            line-height: 20px;
+            vertical-align: middle;
+            font-size: 14px;
+            transition: .3s ease;
+        }
+        #relbar1 > nav > .nav-content > .breadcrumb:hover {
+            color: #fff;
+        }
+        #relbar1 > nav > .nav-content > .breadcrumb:first-child {
+            padding-left: 17px;
+        }
+        #relbar1 > nav > .nav-content span.material-icons {
+            display: inline-block;
+            line-height: 20px;
+            font-size: 20px;
+            vertical-align: inherit;
+            position: relative;
+            top: -1px;
+        }
+        #relbar1 .brand-logo {
+            padding-left: 15px;
+            padding-right: 15px;
+            font-size: 20px;
+            font-weight: 500;
+            left: initial;
+            transform: initial;
+            -webkit-transform: initial;
+            max-width: calc(100% - 3 * 54px);
+        }
+        #header-space {
+            height: 100px;
+        }
+
+        #sidebar2 .collapsible-expander {
+            line-height: inherit;
+            padding-left: 12px;
+            padding-right: 12px;
+            margin-right: -12px;
+            border-radius: 50%;
+            font-size: 24px;
+        }
+        #sidebar2 .side-nav .collapsible-body li a {
+            font-weight: normal;
+        }
+
+        .body h1 {
+            font-size: 24px;
+            font-weight: 400;
+            letter-spacing: normal;
+            line-height: 2rem;
+            margin: 0 0 24px;
+        }
+        .body h2 {
+            font-size: 20px;
+            font-weight: 500;
+            letter-spacing: 0.02em;
+            line-height: 2rem;
+            margin: 56px 0 24px;
+        }
+        .body h3 {
+            font-size: 16px;
+            font-weight: 400;
+            letter-spacing: 0.04em;
+            line-height: 1.75rem;
+            margin: 32px 0 0;
+        }
+        .body h4 {
+            font-size: 15px;
+            font-weight: 400;
+            letter-spacing: 0.04em;
+            line-height: 1.5rem;
+            margin: 20px 0 0;
+        }
+        .body h5, .body h6 {
+            font-size: 14px;
+            font-weight: 500;
+            letter-spacing: 0.04em;
+            line-height: 1.5rem;
+            margin: 16px 0 0;
+        }
+        .body{
+            font-family: Roboto, sans-serif;
+            -moz-osx-font-smoothing: grayscale;
+            -webkit-font-smoothing: antialiased;
+            font-size: 14px;
+            font-weight: 400;
+            letter-spacing: 0.04em;
+            line-height: 1.25rem;
+            text-decoration: inherit;
+            text-transform: inherit;
+        }
+        .body p {
+            margin: 16px 0;
+        }
+        .body .highlight {
+            margin: .5em 0;
+            padding: 7px 20px;
+            border: solid 1px rgba(51,51,51,0.12);
+            border-radius: 2px;
+        }
+        .body .highlight > pre {
+            overflow-y: hidden;
+            height: auto;
+        }
+        .body code {
+            background-color: rgba(0, 0, 0, 0.03);
+            border-radius: 2px;
+            padding: 1px;
+        }
+        .body code, .body pre {
+            font-family: 'Roboto Mono', monospace;
+        }
+        .body code.descname, .body code.descclassname {
+            background-color: initial;
+            padding: initial;
+        }
+        .body code.descname {
+            font-weight: 500;
+        }
+        .body .collection.with-header .collection-header {
+            border-top: solid 2px #ee6e73;
+        }
+    </style>
+{%- endblock %}
+
+{%- block scripts %}
+    {{ super() }}
+    <script type="text/javascript">
+    //<![CDATA[
+        $(function(){
+            // set container class for body
+            $('.container').removeClass('container')
+            $('body').addClass('container')
+
+            // general styles
+            var body = $('.body')
+            body.find('.section').removeClass('section')
+            body.find('ul, ol, dl').addClass('collection')
+            body.find('li, dd').addClass('collection-item')
+            body.find('dl').addClass('with-header')
+            body.find('dt').addClass('collection-header')
+            body.find('.viewcode-link').text('code').addClass('material-icons secondary-content')
+            body.find('.headerlink').text('link').addClass('material-icons secondary-content')
+
+            // styles for sidebar
+            var sidebar = $('#sidebar2')
+            sidebar.children('.caption').addClass('hide')
+            sidebar.children('ul').addClass('side-nav')[0].id = 'side-nav'
+            sidebar.find('ul').addClass('collapsible')
+            sidebar.find('li > a:first-child').addClass('collapsible-header')
+            sidebar.find('li > ul').addClass('collapsible-body').prev('a').each(function(i, item){
+                $('<span/>').text('expand_more').addClass('material-icons secondary-content collapsible-expander waves-effect')
+                            .click(function(e){
+                                var self = $(this)
+                                var opened = self.text() == 'expand_less'
+                                var collapsible = self.closest('.collapsible')
+                                collapsible.collapsible(opened ? 'close' : 'open', collapsible.children().has(self).index())
+                                if(!opened)
+                                    collapsible.closest('.collapsible').children().children('.collapsible-header').find('.collapsible-expander').text('expand_more')
+                                self.text(opened ? 'expand_more' : 'expand_less')
+                                e.stopPropagation()
+                                e.preventDefault()
+                            })
+                            .appendTo($(item))
+            })
+            sidebar.find('.collapsible-body li a').each(function(i, item){
+                var self = $(item)
+                for(var class_name of self.closest('li')[0].classList){
+                    var result = /^toctree-l(\d+)$/.exec(class_name)
+                    if(result)
+                        break
+                }
+                if(result){
+                    var level = parseInt(result[1])
+                    self.css('padding', '0 16px 0 ' + ((level - 1) * 15 + 16) + 'px')
+                }
+            })
+            $('.btn-menu').sideNav()
+        })
+    //]]>
+    </script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+{%- endblock %}
+
+{%- block extrahead %}
+    {{ super() }}
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+{%- endblock %}
+
+{%- block sidebar2 %}
+    <div id="sidebar2">
+        {{ toctree(collapse=False) }}
+    </div>
+{%- endblock %}
+
+{%- block relbar1 %}
+    <div class="navbar-fixed" id="relbar1">
+        <nav class="nav-extended">
+            <div class="nav-wrapper">
+                <ul class="left">
+                    <a href="#" class="btn-menu waves-effect waves-light" data-activates="side-nav">
+                        <i class="material-icons">menu</i>
+                    </a>
+                </ul>
+                <span class="brand-logo truncate">{{ shorttitle|e }}</span>
+                <ul class="right">
+                    {%- for rellink in rellinks|reverse %}
+                        <li>
+                            <a href="{{ pathto(rellink[0]) }}" title="{{ rellink[1]|striptags|e }}" {{ accesskey(rellink[2]) }} class="waves-effect waves-light {% if rellink[3] not in (_('next'), _('previous')) %}hide-on-small-only{% endif %}">
+                                {%- if _('next') == rellink[3] %}
+                                    <i class="material-icons">navigate_next</i>
+                                {%- elif _('previous') == rellink[3] %}
+                                    <i class="material-icons">navigate_before</i>
+                                {%- elif _('index') == rellink[3] %}
+                                    <i class="material-icons">subject</i>
+                                {%- elif _('modules') == rellink[3] %}
+                                    <i class="material-icons">view_module</i>
+                                {%- else %}
+                                    {{ rellink[3] }}
+                                {%- endif %}
+                            </a>
+                        </li>
+                    {%- endfor %}
+                </ul>
+            </div>
+            <div class="nav-content col s12">
+                <a href="{{ pathto(master_doc) }}" class="breadcrumb">
+                    <span class="material-icons">home</span>
+                </a>
+                {%- for parent in parents %}
+                    <a href="{{ parent.link|e }}" {% if loop.last %}{{ accesskey( "U") }}{% endif %} class="breadcrumb">{{ parent.title }}</a>
+                {%- endfor %}
+                <a href="#" class="breadcrumb">{{ title }}</a>
+            </div>
+        </nav>
+    </div>
+    <div id="header-space"></div>
+{%- endblock %}
+
+{%- block relbar2 %}{% endblock %}
