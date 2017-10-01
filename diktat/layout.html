@@ -6,8 +6,22 @@
     <link type="text/css" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Mono:400,400i,500,700"/>
     <link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css"  media="screen,projection"/>
     <style>
-        body.container {
+    /*<![CDATA[*/
+        body {
+            display: flex;
+            min-height: 100vh;
+            flex-direction: column;
+        }
+        .document {
+            flex: 1 0 auto;
+        }
+        .body.container, #footer .container {
             max-width: 800px;
+        }
+        #footer {
+            margin-top: 50px;
+            padding: 16px 0;
+            font-size: 12px;
         }
 
         #relbar1 > nav {
@@ -16,18 +30,23 @@
         }
         #relbar1 > nav > .nav-content {
             padding-bottom: 10px;
+            width: 100%;
+            overflow-x: overlay;
         }
-        #relbar1 > nav > .nav-content > .breadcrumb {
+        #relbar1 > nav > .nav-content > .nav-inner-content {
+            width: max-content;
+        }
+        #relbar1 > nav > .nav-content .breadcrumb {
             display: inline-block;
             line-height: 20px;
             vertical-align: middle;
             font-size: 14px;
             transition: .3s ease;
         }
-        #relbar1 > nav > .nav-content > .breadcrumb:hover {
+        #relbar1 > nav > .nav-content .breadcrumb:hover {
             color: #fff;
         }
-        #relbar1 > nav > .nav-content > .breadcrumb:first-child {
+        #relbar1 > nav > .nav-content .breadcrumb:first-child {
             padding-left: 17px;
         }
         #relbar1 > nav > .nav-content span.material-icons {
@@ -62,6 +81,21 @@
         }
         #sidebar2 .side-nav .collapsible-body li a {
             font-weight: normal;
+        }
+        #searchbox {
+            margin: 0 6px 20px;
+            padding: 0 10px;
+            position: relative;
+        }
+        #searchbox > button {
+            position: absolute;
+            top: 10px;
+            right: 5px;
+            border: none;
+            background-color: white;
+        }
+        #searchbox > * {
+            margin: 0;
         }
 
         .body h1 {
@@ -114,17 +148,10 @@
             margin: 16px 0;
         }
         .body .highlight {
-            margin: .5em 0;
-            padding: 7px 20px;
-            border: solid 1px rgba(51,51,51,0.12);
-            border-radius: 2px;
-        }
-        .body .highlight > pre {
-            overflow-y: hidden;
-            height: auto;
+            background: #f5f5f5;
         }
         .body code {
-            background-color: rgba(0, 0, 0, 0.03);
+            background-color: #f5f5f5;
             border-radius: 2px;
             padding: 1px;
         }
@@ -141,6 +168,40 @@
         .body .collection.with-header .collection-header {
             border-top: solid 2px #ee6e73;
         }
+        .body .card-panel .admonition-title {
+            font-size: 24px;
+            font-weight: 300;
+        }
+        .body .admonition.note {
+            background-color: #e0f2f1;
+        }
+        .body .admonition.caution, .body .admonition.attention, .body .admonition.danger, .body .admonition.error {
+            background-color: #ffebee;
+        }
+        .body .admonition.warning, .body .admonition.important {
+            background-color: #fff3e0;
+        }
+        .body .admonition.hint, .body .admonition.tip {
+            background-color: #f9fbe7;
+        }
+        .body .collection-header, .body .collection-item {
+            overflow-x: overlay;
+        }
+
+        #side-nav.persistent-side-nav {
+            transform: initial !important;
+            -webkit-transform: initial !important;
+        }
+        body.padded-body {
+            padding-left: 300px;
+        }
+        #side-nav.transiting {
+            transition: transform .3s ease, -webkit-transform .3s ease
+        }
+        body.transiting {
+            transition: padding-left .3s ease;
+        }
+    /*]]>*/
     </style>
 {%- endblock %}
 
@@ -149,12 +210,41 @@
     <script type="text/javascript">
     //<![CDATA[
         $(function(){
-            // set container class for body
-            $('.container').removeClass('container')
-            $('body').addClass('container')
+            $.fn.transiting = function(flag){
+                if(typeof(flag) === 'undefined')
+                    flag = true
+                return $(this).each(function(i, item){
+                    if(flag)
+                        item.className = item.className ? item.className + ' transiting' : 'transiting'
+                    else{
+                        var class_list = item.className.split(' ')
+                        var pos = class_list.indexOf('transiting')
+                        if(pos != -1)
+                            class_list.splice(pos, 1)
+                        item.className = class_list.join(' ')
+                    }
+                })
+            }
+
+            $.fn.toctree_index = function(){
+                var self = $($(this)[0])
+                var count = 0
+                self.prevAll().each(function(i, item){
+                    for(var class_name of item.classList){
+                        var result = /^toctree-l(\d+)$/.exec(class_name)
+                        if(result){
+                            ++count
+                            break
+                        }
+                    }
+                })
+                return count
+            }
 
             // general styles
             var body = $('.body')
+            body.find('.container').removeClass('container')
+            body.addClass('container')
             body.find('.section').removeClass('section')
             body.find('ul, ol, dl').addClass('collection')
             body.find('li, dd').addClass('collection-item')
@@ -162,20 +252,21 @@
             body.find('dt').addClass('collection-header')
             body.find('.viewcode-link').text('code').addClass('material-icons secondary-content')
             body.find('.headerlink').text('link').addClass('material-icons secondary-content')
+            body.find('.admonition, .highlight').addClass('card-panel')
 
             // styles for sidebar
             var sidebar = $('#sidebar2')
             sidebar.children('.caption').addClass('hide')
             sidebar.children('ul').addClass('side-nav')[0].id = 'side-nav'
             sidebar.find('ul').addClass('collapsible')
-            sidebar.find('li > a:first-child').addClass('collapsible-header')
+            sidebar.find('li > a:first-child').addClass('collapsible-header truncate')
             sidebar.find('li > ul').addClass('collapsible-body').prev('a').each(function(i, item){
                 $('<span/>').text('expand_more').addClass('material-icons secondary-content collapsible-expander waves-effect')
                             .click(function(e){
                                 var self = $(this)
                                 var opened = self.text() == 'expand_less'
                                 var collapsible = self.closest('.collapsible')
-                                collapsible.collapsible(opened ? 'close' : 'open', collapsible.children().has(self).index())
+                                collapsible.collapsible(opened ? 'close' : 'open', collapsible.children().has(self).toctree_index())
                                 if(!opened)
                                     collapsible.closest('.collapsible').children().children('.collapsible-header').find('.collapsible-expander').text('expand_more')
                                 self.text(opened ? 'expand_more' : 'expand_less')
@@ -196,7 +287,97 @@
                     self.css('padding', '0 16px 0 ' + ((level - 1) * 15 + 16) + 'px')
                 }
             })
-            $('.btn-menu').sideNav()
+            sidebar.find('.collapsible').each(function(i, item){
+                var self = $(item)
+                var cur = self.children('.current')
+                cur.find('.collapsible-expander').text('expand_less')
+                self.collapsible('open', cur.toctree_index())
+            })
+            var search_card = $(
+                '<li>' +
+                    '<form class="card-panel hoverable" id="searchbox" action="{{ pathto('search') }}" method="get">' +
+                        '<input type="text" name="q"/>' +
+                        '<button type="submit"><i class="material-icons">search</i></button>' +
+                        '<input type="hidden" name="check_keywords" value="yes"/>' +
+                        '<input type="hidden" name="area" value="default"/>' +
+                    '</form>' +
+                '</li>'
+            )
+            sidebar.find('#side-nav').prepend(search_card)
+
+            var sidenav_trigger = $('<a href="#" data-activates="side-nav"/>')
+            sidenav_trigger.sideNav()
+            $('#side-nav').data('opened', false)
+            function persistent_width_enough(){
+                return $(window).width() >= 300 + 800 / 0.7
+            }
+            function untransiting_persistent(){
+                var body = $('body')
+                var nav = $('#side-nav')
+                setTimeout(function(){
+                    nav.transiting(false)
+                    body.transiting(false)
+                }, 300)
+            }
+            function transiting_persistent(){
+                var body = $('body')
+                var nav = $('#side-nav')
+                nav.transiting()
+                body.transiting()
+            }
+            function show_persistent(transition_flag){
+                var body = $('body')
+                var nav = $('#side-nav')
+                sidenav_trigger.sideNav('hide')
+                if(transition_flag){
+                    transiting_persistent()
+                    untransiting_persistent()
+                }
+                nav.addClass('persistent-side-nav')
+                body.addClass('padded-body')
+                nav.css({
+                    'z-index': 996,
+                    'padding-top': '100px'
+                })
+                nav.data('opened', true)
+            }
+            function hide_persistent(transition_flag){
+                var body = $('body')
+                var nav = $('#side-nav')
+                if(transition_flag){
+                    transiting_persistent()
+                    untransiting_persistent()
+                }
+                nav.removeClass('persistent-side-nav')
+                body.removeClass('padded-body')
+                nav.data('opened', false)
+            }
+            $('.btn-menu').click(function(e){
+                e.preventDefault()
+                var nav = $('#side-nav')
+                var opened = nav.data('opened')
+                if(!opened){
+                    if(persistent_width_enough()){
+                        show_persistent(true)
+                    }else{
+                        nav.css({
+                            'z-index': 999,
+                            'padding-top': 0
+                        })
+                        sidenav_trigger.click()
+                    }
+                }else{
+                    hide_persistent(true)
+                }
+            })
+            $(window).resize(function(){
+                var nav = $('#side-nav')
+                var opened = nav.data('opened')
+                if(opened && !persistent_width_enough())
+                    hide_persistent(false)
+            })
+            if(persistent_width_enough())
+                show_persistent(false)
         })
     //]]>
     </script>
@@ -219,7 +400,7 @@
         <nav class="nav-extended">
             <div class="nav-wrapper">
                 <ul class="left">
-                    <a href="#" class="btn-menu waves-effect waves-light" data-activates="side-nav">
+                    <a href="#" class="btn-menu waves-effect waves-light">
                         <i class="material-icons">menu</i>
                     </a>
                 </ul>
@@ -244,14 +425,16 @@
                     {%- endfor %}
                 </ul>
             </div>
-            <div class="nav-content col s12">
-                <a href="{{ pathto(master_doc) }}" class="breadcrumb">
-                    <span class="material-icons">home</span>
-                </a>
-                {%- for parent in parents %}
-                    <a href="{{ parent.link|e }}" {% if loop.last %}{{ accesskey( "U") }}{% endif %} class="breadcrumb">{{ parent.title }}</a>
-                {%- endfor %}
-                <a href="#" class="breadcrumb">{{ title }}</a>
+            <div class="nav-content">
+                <div class="nav-inner-content">
+                    <a href="{{ pathto(master_doc) }}" class="breadcrumb">
+                        <span class="material-icons">home</span>
+                    </a>
+                    {%- for parent in parents %}
+                        <a href="{{ parent.link|e }}" {% if loop.last %}{{ accesskey( "U") }}{% endif %} class="breadcrumb">{{ parent.title }}</a>
+                    {%- endfor %}
+                    <a href="#" class="breadcrumb">{{ title }}</a>
+                </div>
             </div>
         </nav>
     </div>
@@ -259,3 +442,11 @@
 {%- endblock %}
 
 {%- block relbar2 %}{% endblock %}
+
+{%- block footer %}
+    <div id="footer" class="page-footer">
+        <div class="container">
+            {{ super() }}
+        </div>
+    </div>
+{%- endblock %}
