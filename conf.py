@@ -6,5 +6,5 @@ copyright = '2017, TitanSnow'
 author = 'TitanSnow'
 language = 'zh_CN'
 exclude_patterns = ['_build']
-html_theme_path = ['.']
 html_theme = 'diktat'
+html_short_title = 'tttnns 的博客'
