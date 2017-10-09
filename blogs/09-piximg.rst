@@ -79,3 +79,10 @@ Example
     .. piximg:: 62034471
        :size: large
        :border: on
+
+
+UPDATE
+------
+
+我发现本篇博文可以检测你的梯子有没有萎掉。
+如果你没看到 Example 中的图片，那么祝你能找到一部好梯子。
