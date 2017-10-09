@@ -1,4 +1,4 @@
-extensions = ['sphinx.ext.mathjax']
+extensions = ['sphinx.ext.mathjax', 'piximg']
 source_suffix = '.rst'
 master_doc = 'index'
 project = 'tttnns-blog'

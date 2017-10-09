@@ -1,1 +1,2 @@
 git+https://github.com/TitanSnow/sphinx-diktat-theme.git
+git+https://github.com/TitanSnow/piximg.git
