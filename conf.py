@@ -12,3 +12,4 @@ html_theme_options = {
 }
 html_short_title = 'tttnns 的博客'
 mathjax_path = 'https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS_CHTML-full'
+html_static_path = ['_static']
