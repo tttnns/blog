@@ -1,0 +1,176 @@
+\documentclass{beamer}
+\usepackage[punct=kaiming, fontset=founder]{ctex}
+\usepackage{parskip}
+\usepackage{hologo}
+\usepackage{calc}
+\usepackage{hyperref}
+\usepackage{minted}
+\usepackage{ifxetex}
+\newcommand{\TitanSnow}{Titan\makebox[0.1em]{\ }Snow}
+\title{\LaTeX{} environment setup}
+\subtitle{Special for Chinese}
+\author{\TitanSnow}
+\date{\today}
+\begin{document}
+    \frame{\titlepage}
+    \begin{frame}
+        \frametitle{What's this?}
+        Just a \textit{beamer} test :)
+    \end{frame}
+    \begin{frame}
+        \frametitle{Why this?}
+        在配置\LaTeX{}的过程中，
+        遇到了不少坑。
+        有很多人使用错误或过时的方法，
+        还广为流传，
+        尤其是在中文处理方面。
+        这份材料主要介绍了一些经验和推荐的方法，
+        以供参考。
+    \end{frame}
+    \begin{frame}
+        \frametitle{Why \LaTeX{}?}
+        Microsoft Word \textit{versus} \LaTeX\pause
+
+        笑话，你拿Word跟\LaTeX{}比也太自不量力了。\pause
+
+        可配置的标点压缩你试试？
+        \begin{description}
+            \item[全角式]{\rmfamily\ctexset{punct=quanjiao}客喜而笑，洗盏更酌。肴核既尽，杯盘狼藉。相与枕藉乎舟中，不知东方之既白。}
+            \item[半角式]{\rmfamily\ctexset{punct=banjiao}客喜而笑，洗盏更酌。肴核既尽，杯盘狼藉。相与枕藉乎舟中，不知东方之既白。}
+            \item[开明式]{\rmfamily\ctexset{punct=kaiming}客喜而笑，洗盏更酌。肴核既尽，杯盘狼藉。相与枕藉乎舟中，不知东方之既白。}
+        \end{description}\pause
+        我发现开明式的标点压缩有利于增强句子的整体性，
+        不会使子句与子句之间支离破碎，
+        更利于阅读。（你用西文逗号当我没说）
+    \end{frame}
+    \begin{frame}
+        \frametitle{Why \LaTeX{}?}
+        \begin{description}[labelwidth=\widthof{Disadvantage}]
+            \item<2->[Advantage]{
+                \begin{itemize}
+                    \item<2-> 动态规划排版算法
+                    \item<3-> 图灵完备
+                    \item<4-> 数学表示体系完备
+                    \item<5-> 文本源码
+                    \item<6-> \textellipsis
+                \end{itemize}
+            }
+            \item<7->[Disadvantage]{
+                \begin{itemize}
+                    \item<7-> 编译贼jb慢
+                \end{itemize}
+            }
+        \end{description}\pause[8]
+
+        \hologo{LuaLaTeX} with \hologo{LuaTeX}-ja，
+        编译速度那酸爽，用过都知道。
+    \end{frame}
+    \begin{frame}
+        \frametitle{Why \LaTeX{}?}
+        Microsoft Powerpoint \textit{versus} \LaTeX\pause
+
+        这个没法比\textellipsis
+        毕竟人家是专门做ppt的。
+        pdf是没有动画的，
+        这点就比不了了。
+
+        没有动画的演示文稿当然是可以做的，
+        就像本文一样，\LaTeX{} with \textit{beamer}。
+    \end{frame}
+    \begin{frame}
+        \frametitle{Donald E. Knuth}
+        \TeX 的 author
+
+        \begin{itemize}
+            \item<2-> Computational complexity of algorithms
+            \item<3-> Dancing Links
+            \item<4-> Knuth-Morris-Pratt algorithm
+            \item<5-> \textellipsis
+        \end{itemize}\pause[6]
+
+        想必你们已经知道是谁了。
+    \end{frame}
+    \begin{frame}
+        \frametitle{What are \TeX{}, \LaTeX{}, \hologo{pdfLaTeX}, \hologo{XeLaTeX}, \hologo{LuaLaTeX}\textellipsis?}
+        就像认为Python就是CPython一样，
+        很多人认为\LaTeX{}就是latex那个引擎（恕我表达不清楚）。
+        woc，那玩意现在还有人用吗？
+
+        \LaTeX{}是一种语言（姑且这么讲），
+        有很多种实现。
+        就像Python之于CPython和PyPy。
+        一般有三种常用的引擎：\pause
+
+        \begin{description}[labelwidth=\widthof{\hologo{LuaLaTeX} \textsubscript{with \hologo{LuaTeX}-ja}}]
+            \item<2->[\hologo{pdfLaTeX}] 用于西文不使用额外字体排版
+            \item<3->[\hologo{XeLaTeX} \textsubscript{with \hologo{Xe}CJK}] 用于中文排版
+            \item<4->[\hologo{LuaLaTeX} \textsubscript{with \hologo{LuaTeX}-ja}] 用于日文排版
+        \end{description}\pause[5]
+
+        \TeX{}就不用管了，我不会。
+    \end{frame}
+    \begin{frame}
+        \frametitle{\TeX{}Live Installation}
+        终于开始讲正题了，激不激动？\pause
+
+        力荐\TeX{}Live。其它发行版？不存在的。\pause
+
+        不建议使用系统包管理器（如apt）。
+        系统包管理器里的\TeX{}Live一般不是最新的。\pause
+
+        Steps:
+        \begin{enumerate}
+            \item<4-> Download \href{http://tug.org/texlive/acquire-netinstall.html}{\TeX{}Live installer}
+            \item<5-> Install it
+            \item<6-> Have fun!
+        \end{enumerate}
+    \end{frame}
+    \begin{frame}[fragile]
+        \frametitle{Hello, \LaTeX{}!}
+        \begin{minted}{latex}
+\documentclass{article}
+\begin{document}
+    Hello, \LaTeX{}!
+\end{document}
+        \end{minted}
+
+        Use \hologo{pdfLaTeX}, \hologo{XeLaTeX} or \hologo{LuaLaTeX} to compile.
+    \end{frame}
+    \begin{frame}[fragile]
+        \frametitle{你好，\LaTeX{}！}
+        \begin{minted}{latex}
+\documentclass{ctexart}
+\begin{document}
+    你好，\LaTeX{}！
+\end{document}
+        \end{minted}
+
+        Use \hologo{XeLaTeX} or \hologo{LuaLaTeX} to compile.
+    \end{frame}
+    \begin{frame}[fragile]
+        \frametitle{こんにちは \LaTeX{}！}
+        \begin{minted}{latex}
+\documentclass{ltjsarticle}
+\begin{document}
+    こんにちは \LaTeX{}！
+\end{document}
+        \end{minted}
+
+        Use \hologo{LuaLaTeX} to compile.
+    \end{frame}
+    \begin{frame}
+        \frametitle{The End}
+        \centering
+        想必大家都会\LaTeX{}，顺着本文环境也配好了。\pause
+
+        \Huge\textbackslash{}bye\pause
+
+        \small\ifxetex Gen by \hologo{XeLaTeX} with \CTeX\fi
+    \end{frame}
+    \begin{frame}
+        \Huge
+        \[
+            e = \lim_{n \rightarrow \infty} \left(1+\frac{1}{n}\right)^n
+        \]
+    \end{frame}
+\end{document}
