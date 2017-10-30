@@ -1,6 +1,0 @@
-学习笔记
-========
-
-.. raw:: html
-
-    <script>location='/_static/pdfjs/web/viewer.html?file=/_static/jp.pdf'</script>
